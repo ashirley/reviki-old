@@ -22,6 +22,7 @@ import net.hillsdon.fij.accessors.Accessor;
 import net.hillsdon.fij.text.Escape;
 import net.hillsdon.reviki.vc.PageReference;
 import net.hillsdon.reviki.web.urls.URLOutputFilter;
+import net.hillsdon.reviki.wiki.renderer.context.PageRenderContext;
 import net.hillsdon.reviki.wiki.renderer.creole.AbstractRegexNode;
 import net.hillsdon.reviki.wiki.renderer.creole.HtmlEscapeResultNode;
 import net.hillsdon.reviki.wiki.renderer.creole.RenderNode;
@@ -54,7 +55,7 @@ public class MacroNode extends AbstractRegexNode {
     return matcher.group(1).trim();
   }
 
-  public ResultNode handle(final PageReference page, final Matcher matcher, final RenderNode parent, final URLOutputFilter urlOutputFilter) {
+  public ResultNode handle(final PageReference page, final Matcher matcher, final RenderNode parent, final URLOutputFilter urlOutputFilter, PageRenderContext context) {
     // We need to move to a push system for updating macros to avoid this.
     final String macroName = getMacroName(matcher);
     Macro macro = null;
@@ -77,7 +78,7 @@ public class MacroNode extends AbstractRegexNode {
         case WIKI:
           // Use the parent as renderer if possible as that has the appropriate child nodes.
           RenderNode renderer = parent != null ? parent : this;
-          return new CompositeResultNode(renderer.render(page, content, this, urlOutputFilter));
+          return new CompositeResultNode(renderer.render(page, content, context, urlOutputFilter));
         default:
           return new HtmlEscapeResultNode(content);
       }
