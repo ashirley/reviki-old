@@ -67,25 +67,25 @@ public class MacroNode extends AbstractRegexNode {
       }
     }
     if (macro == null) {
-      return new LiteralResultNode("<pre>" + Escape.html(matcher.group()) + "</pre>");
+      return new LiteralResultNode("<pre>" + Escape.html(matcher.group()) + "</pre>", context);
     }
     
     try {
-      String content = macro.handle(page, matcher.group(2));
+      String content = macro.handle(page, matcher.group(2), context);
       switch (macro.getResultFormat()) {
         case XHTML:
-          return new LiteralResultNode(content);
+          return new LiteralResultNode(content, context);
         case WIKI:
           // Use the parent as renderer if possible as that has the appropriate child nodes.
           RenderNode renderer = parent != null ? parent : this;
-          return new CompositeResultNode(renderer.render(page, content, context, urlOutputFilter));
+          return new CompositeResultNode(renderer.render(page, content, context, urlOutputFilter), context);
         default:
-          return new HtmlEscapeResultNode(content);
+          return new HtmlEscapeResultNode(content, context);
       }
     }
     catch (Exception e) {
       LOG.error("Error handling macro on: " + page.getPath(), e);
-      return new LiteralResultNode(String.format("<p>Error evaluating macro '%s': %s</p>", Escape.html(macro.getName()), Escape.html(e.getMessage())));
+      return new LiteralResultNode(String.format("<p>Error evaluating macro '%s': %s</p>", Escape.html(macro.getName()), Escape.html(e.getMessage())), context);
     }
   }
 

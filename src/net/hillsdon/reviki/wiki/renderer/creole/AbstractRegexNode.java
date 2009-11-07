@@ -86,7 +86,7 @@ public abstract class AbstractRegexNode implements RenderNode {
       result.addAll(_fallback.render(page, text, context, urlOutputFilter));
     }
     else {
-      result.add(new HtmlEscapeResultNode(text));
+      result.add(new HtmlEscapeResultNode(text, context));
     }
   }
 

@@ -38,7 +38,7 @@ public class UnescapedHtmlNode extends AbstractRegexNode {
   }
 
   public ResultNode handle(final PageReference page, final Matcher matcher, RenderNode parent, final URLOutputFilter urlOutputFilter, PageRenderContext context) {
-    return new LiteralResultNode(matcher.group(1));
+    return new LiteralResultNode(matcher.group(1), context);
   }
 
 }

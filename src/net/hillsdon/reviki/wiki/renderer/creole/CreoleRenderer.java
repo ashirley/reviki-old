@@ -68,7 +68,7 @@ public class CreoleRenderer {
     public ResultNode handle(final PageReference page, final Matcher matcher, RenderNode parent, final URLOutputFilter urlOutputFilter, PageRenderContext context) {
       String escaped = Escape.html(matcher.group(0));
       String escapedFiltered = Escape.html(urlOutputFilter.filterURL(matcher.group(0)));
-      return new LiteralResultNode(String.format("<a href='%s'>%s</a>", escapedFiltered, escaped));
+      return new LiteralResultNode(String.format("<a href='%s'>%s</a>", escapedFiltered, escaped), context);
     }
   }
   private static class Heading extends RegexMatchToTag {
@@ -147,7 +147,8 @@ public class CreoleRenderer {
   }
   
   public ResultNode render(final PageReference page, final String in, final URLOutputFilter urlOutputFilter) {
-    return new CompositeResultNode(_root.render(page, in.replaceAll("\r", ""), new PageRenderContext(), urlOutputFilter));
+    PageRenderContext context = new PageRenderContext();
+    return new CompositeResultNode(_root.render(page, in.replaceAll("\r", ""), context, urlOutputFilter), context);
   }
   
   @SuppressWarnings("unchecked")

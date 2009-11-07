@@ -35,7 +35,7 @@ public class LinkNode extends AbstractRegexNode {
   }
 
   public final ResultNode handle(final PageReference page, final Matcher matcher, RenderNode parent, final URLOutputFilter urlOutputFilter, PageRenderContext context) {
-    return new LiteralResultNode(_handler.handle(page, this, _parser.split(matcher), urlOutputFilter, context));
+    return new LiteralResultNode(_handler.handle(page, this, _parser.split(matcher), urlOutputFilter, context), context);
   }
 
 }

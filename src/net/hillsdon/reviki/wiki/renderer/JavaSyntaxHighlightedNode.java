@@ -47,10 +47,10 @@ public class JavaSyntaxHighlightedNode extends AbstractRegexNode {
   public ResultNode handle(final PageReference page, final Matcher matcher, RenderNode parent, final URLOutputFilter urlOutputFilter, PageRenderContext context) {
     String content = matcher.group(1).trim();
     try {
-      return new LiteralResultNode(XhtmlRendererFactory.getRenderer(XhtmlRendererFactory.JAVA).highlight("", content, "UTF-8", true));
+      return new LiteralResultNode(XhtmlRendererFactory.getRenderer(XhtmlRendererFactory.JAVA).highlight("", content, "UTF-8", true), context);
     }
     catch (IOException e) {
-      return new LiteralResultNode("<pre>" + Escape.html(content) + "</pre>");
+      return new LiteralResultNode("<pre>" + Escape.html(content) + "</pre>", context);
     }
   }
 

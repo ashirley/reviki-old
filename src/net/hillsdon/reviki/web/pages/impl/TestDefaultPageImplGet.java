@@ -54,7 +54,7 @@ import net.hillsdon.reviki.wiki.renderer.result.LiteralResultNode;
 import org.easymock.EasyMock;
 
 /**
- * Tests for {@link GetRegularPageImpl}.
+ * Tests.
  *
  * @author mth
  */
@@ -185,7 +185,7 @@ public class TestDefaultPageImplGet extends TestCase {
   }
 
   private void expectRenderContent() throws Exception  {
-    expect(_renderer.render(eq(THE_PAGE), eq("Content"), isA(URLOutputFilter.class))).andReturn(new LiteralResultNode("Content")).once();
+    expect(_renderer.render(eq(THE_PAGE), eq("Content"), isA(URLOutputFilter.class))).andReturn(new LiteralResultNode("Content", null)).once();
   }
 
   private void expectGetIncomingLinks(final String... returnedPages) throws Exception  {

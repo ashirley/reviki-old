@@ -25,10 +25,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
 
 import net.hillsdon.fij.text.Escape;
 import net.hillsdon.reviki.search.QuerySyntaxException;
@@ -73,7 +70,6 @@ import org.apache.lucene.store.LockObtainFailedException;
  * @author mth
  */
 public class LuceneSearcher implements SearchEngine {
-
   public static class NoQueryPerformedException extends RuntimeException {
     private static final long serialVersionUID = 1L;
     public NoQueryPerformedException(final QuerySyntaxException cause) {
@@ -93,6 +89,8 @@ public class LuceneSearcher implements SearchEngine {
   private static final String FIELD_PROPERTY_KEY = "property";
   private static final String FIELD_PROPERTY_VALUE = "property-value";
   private static final String PROPERTY_LAST_INDEXED_REVISION = "last-indexed-revision";
+
+  private static final String FIELD_PAGE_PROPS_PREFIX = "pageProp_";
 
   private static final String[] ALL_SEARCH_FIELDS = new String[] {FIELD_PATH, FIELD_PATH_LOWER, FIELD_TITLE_TOKENIZED, FIELD_CONTENT};
 
@@ -121,12 +119,7 @@ public class LuceneSearcher implements SearchEngine {
       }
     };
     final Analyzer id = new KeywordAnalyzer();
-    final PerFieldAnalyzerWrapper perField = new PerFieldAnalyzerWrapper(new Analyzer() {
-      @Override
-      public TokenStream tokenStream(final String fieldName, final Reader reader) {
-        throw new UnsupportedOperationException("Need to define analyser for: " + fieldName);
-      }
-    });
+    final PerFieldAnalyzerWrapper perField = new PerFieldAnalyzerWrapper(id);
     perField.addAnalyzer(FIELD_PATH, id);
     perField.addAnalyzer(FIELD_PATH_LOWER, id);
     perField.addAnalyzer(FIELD_TITLE_TOKENIZED, text);
@@ -148,6 +141,13 @@ public class LuceneSearcher implements SearchEngine {
     document.add(new Field(FIELD_OUTGOING_LINKS, join(renderedPage.findOutgoingWikiLinks().iterator(), " "), Field.Store.YES, Field.Index.TOKENIZED));
     // We store the content in order to show matching extracts.
     document.add(new Field(FIELD_CONTENT, content, Field.Store.YES, Field.Index.TOKENIZED));
+
+    //store all the key-value document properties we found by whatever means.
+    Map<String, String> props = renderedPage.getPageProperties();
+    for (Map.Entry<String, String> prop : props.entrySet()) {
+      document.add(new Field(FIELD_PAGE_PROPS_PREFIX + prop.getKey(), prop.getValue(), Field.Store.YES, Field.Index.TOKENIZED));
+    }
+
     return document;
   }
 

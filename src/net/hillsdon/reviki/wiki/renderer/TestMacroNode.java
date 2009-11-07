@@ -26,6 +26,7 @@ import net.hillsdon.fij.accessors.Holder;
 import net.hillsdon.reviki.vc.PageReference;
 import net.hillsdon.reviki.vc.impl.PageReferenceImpl;
 import net.hillsdon.reviki.web.urls.URLOutputFilter;
+import net.hillsdon.reviki.wiki.renderer.context.PageRenderContext;
 import net.hillsdon.reviki.wiki.renderer.macro.Macro;
 import net.hillsdon.reviki.wiki.renderer.macro.ResultFormat;
 
@@ -44,7 +45,7 @@ public class TestMacroNode extends TestCase {
       public ResultFormat getResultFormat() {
         return ResultFormat.WIKI;
       }
-      public String handle(final PageReference page, final String remainder) throws Exception {
+      public String handle(final PageReference page, final String remainder, final PageRenderContext context) throws Exception {
         throw new NullPointerException("Simulated & escape me please.");
       }
     };

@@ -46,13 +46,13 @@ public class RegexMatchToTag extends AbstractRegexNode implements RenderNode {
 
   public ResultNode handle(final PageReference page, final Matcher matcher, RenderNode parent, final URLOutputFilter urlOutputFilter, PageRenderContext context) {
     if (_contentGroup == null) {
-      return new TagResultNode(_tag);
+      return new TagResultNode(_tag, context);
     }
     String text = matcher.group(_contentGroup);
     if (_replaceRe != null) {
       text = _replaceRe.matcher(text).replaceAll(_replaceString);
     }
-    return new TagResultNode(_tag, render(page, text, context, urlOutputFilter));
+    return new TagResultNode(_tag, render(page, text, context, urlOutputFilter), context);
   }
   
   @Override

@@ -23,12 +23,13 @@ import java.util.Collection;
 import java.util.List;
 
 import net.hillsdon.reviki.vc.PageReference;
+import net.hillsdon.reviki.wiki.renderer.context.PageRenderContext;
 import net.hillsdon.reviki.wiki.renderer.macro.Macro;
 import net.hillsdon.reviki.wiki.renderer.macro.ResultFormat;
 
 public abstract class AbstractListOfPagesMacro implements Macro {
 
-  public final String handle(final PageReference page, final String remainder) throws Exception {
+  public final String handle(final PageReference page, final String remainder, PageRenderContext context) throws Exception {
     List<String> pages = new ArrayList<String>(getPages(remainder));
     sort(pages);
     return join(pages.iterator(), "  * ", "\n", "");
