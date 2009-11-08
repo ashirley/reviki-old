@@ -45,7 +45,7 @@ public interface SearchEngine {
    * @throws IOException On error reading the search index.
    * @throws PageStoreException If an error occurs reading wiki-data.
    */
-  Set<String> outgoingLinks(String page) throws IOException, PageStoreException;
+  Set<SearchMatch> outgoingLinks(String page) throws IOException, PageStoreException;
 
   /**
    * @param page A page.
@@ -53,7 +53,7 @@ public interface SearchEngine {
    * @throws IOException On error reading the search index.
    * @throws PageStoreException If an error occurs reading wiki-data.
    */
-  Set<String> incomingLinks(String page) throws IOException, PageStoreException;
+  Set<SearchMatch> incomingLinks(String page) throws IOException, PageStoreException;
 
   /**
    * Indexes page change.

@@ -15,14 +15,15 @@
  */
 package net.hillsdon.fij.core;
 
-import static java.util.Arrays.asList;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
+
+import static java.util.Arrays.asList;
+
 
 /**
  * General purpose functional utilities.

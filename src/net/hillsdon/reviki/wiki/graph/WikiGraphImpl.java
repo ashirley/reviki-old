@@ -17,16 +17,18 @@ package net.hillsdon.reviki.wiki.graph;
 
 import java.io.IOException;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
+import net.hillsdon.fij.core.Predicate;
 import net.hillsdon.reviki.search.SearchEngine;
+import net.hillsdon.reviki.search.SearchMatch;
 import net.hillsdon.reviki.vc.PageReference;
 import net.hillsdon.reviki.vc.PageStore;
 import net.hillsdon.reviki.vc.PageStoreException;
 import net.hillsdon.reviki.vc.impl.CachingPageStore;
 
-import static net.hillsdon.fij.core.Functional.list;
-import static net.hillsdon.fij.core.Functional.map;
+import static net.hillsdon.fij.core.Functional.*;
 
 public class WikiGraphImpl implements WikiGraph {
 
@@ -38,15 +40,15 @@ public class WikiGraphImpl implements WikiGraph {
     _searchEngine = searchEngine;
   }
   
-  public Set<String> incomingLinks(final String page) throws IOException, PageStoreException {
-    Set<String> incoming = _searchEngine.incomingLinks(page);
-    retainOnlyExistingPages(incoming);
+  public Set<SearchMatch> incomingLinks(final String page) throws IOException, PageStoreException {
+    Set<SearchMatch> incoming = _searchEngine.incomingLinks(page);
+    incoming = retainOnlyExistingPages(incoming);
     return incoming;
   }
 
-  public Set<String> outgoingLinks(final String page) throws IOException, PageStoreException {
-    Set<String> outgoing = _searchEngine.outgoingLinks(page);
-    retainOnlyExistingPages(outgoing);
+  public Set<SearchMatch> outgoingLinks(final String page) throws IOException, PageStoreException {
+    Set<SearchMatch> outgoing = _searchEngine.outgoingLinks(page);
+    outgoing = retainOnlyExistingPages(outgoing);
     return outgoing;
   }
 
@@ -68,8 +70,14 @@ public class WikiGraphImpl implements WikiGraph {
    * @param pages Incoming.
    * @throws PageStoreException If we can't get the page list.
    */
-  private void retainOnlyExistingPages(final Set<String> pages) throws PageStoreException {
-    pages.retainAll(list(map(_pageStore.list(), PageReference.TO_NAME)));
+  private Set<SearchMatch> retainOnlyExistingPages(final Set<SearchMatch> pages) throws PageStoreException {
+    final List<String> allPages = list(map(_pageStore.list(), PageReference.TO_NAME));
+
+    return set(filter(pages, new Predicate<SearchMatch>() {
+      public Boolean transform(final SearchMatch searchMatch) {
+        return allPages.contains(searchMatch.getPage());
+      }
+    }));
   }
 
 }

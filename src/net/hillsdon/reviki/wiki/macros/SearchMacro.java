@@ -20,6 +20,7 @@ import static net.hillsdon.fij.core.Functional.map;
 
 import java.util.Collection;
 
+import net.hillsdon.fij.core.Transform;
 import net.hillsdon.reviki.search.SearchEngine;
 import net.hillsdon.reviki.search.SearchMatch;
 
@@ -36,8 +37,8 @@ public class SearchMacro extends AbstractListOfPagesMacro {
   }
 
   @Override
-  protected Collection<String> getPages(final String remainder) throws Exception {
-    return list(map(_searchEngine.search(remainder, false), SearchMatch.TO_PAGE_NAME));
+  protected Collection<SearchMatch> getPages(final String remainder) throws Exception {
+    return _searchEngine.search(remainder, false);
   }
 
 }

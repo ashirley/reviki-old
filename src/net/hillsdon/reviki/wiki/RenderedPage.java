@@ -18,6 +18,7 @@ package net.hillsdon.reviki.wiki;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -97,6 +98,9 @@ public class RenderedPage {
   }
 
   public Map<String, String> getPageProperties() {
+    if (_context == null) {
+      return Collections.emptyMap();
+    }
     return _context.getPageProperties();
   }
 }

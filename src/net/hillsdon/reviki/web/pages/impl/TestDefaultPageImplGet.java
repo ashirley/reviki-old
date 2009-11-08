@@ -15,6 +15,8 @@
  */
 package net.hillsdon.reviki.web.pages.impl;
 
+import static net.hillsdon.fij.core.Functional.iter;
+import static net.hillsdon.fij.core.Functional.map;
 import static net.hillsdon.fij.core.Functional.set;
 import static net.hillsdon.reviki.web.pages.impl.DefaultPageImpl.ATTR_BACKLINKS;
 import static net.hillsdon.reviki.web.pages.impl.DefaultPageImpl.ATTR_BACKLINKS_LIMITED;
@@ -33,6 +35,7 @@ import java.util.Date;
 import javax.servlet.http.HttpServletResponse;
 
 import junit.framework.TestCase;
+import net.hillsdon.reviki.search.SearchMatch;
 import net.hillsdon.reviki.vc.PageInfo;
 import net.hillsdon.reviki.vc.PageReference;
 import net.hillsdon.reviki.vc.impl.CachingPageStore;
@@ -189,7 +192,7 @@ public class TestDefaultPageImplGet extends TestCase {
   }
 
   private void expectGetIncomingLinks(final String... returnedPages) throws Exception  {
-    expect(_graph.incomingLinks(THE_PAGE.getPath())).andReturn(set(returnedPages)).once();
+    expect(_graph.incomingLinks(THE_PAGE.getPath())).andReturn(set(map(iter(returnedPages), SearchMatch.FROM_PAGE_NAME))).once();
   }
 
   private PageInfo expectGetContent() throws Exception  {

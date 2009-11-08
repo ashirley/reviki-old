@@ -21,7 +21,9 @@ import static net.hillsdon.fij.text.Strings.join;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
+import net.hillsdon.reviki.search.SearchMatch;
 import net.hillsdon.reviki.vc.PageReference;
 import net.hillsdon.reviki.wiki.renderer.context.PageRenderContext;
 import net.hillsdon.reviki.wiki.renderer.macro.Macro;
@@ -30,7 +32,7 @@ import net.hillsdon.reviki.wiki.renderer.macro.ResultFormat;
 public abstract class AbstractListOfPagesMacro implements Macro {
 
   public final String handle(final PageReference page, final String remainder, PageRenderContext context) throws Exception {
-    List<String> pages = new ArrayList<String>(getPages(remainder));
+    List<SearchMatch> pages = new ArrayList<SearchMatch>(getPages(remainder));
     sort(pages);
     return join(pages.iterator(), "  * ", "\n", "");
   }
@@ -39,6 +41,5 @@ public abstract class AbstractListOfPagesMacro implements Macro {
     return ResultFormat.WIKI;
   }
 
-  protected abstract Collection<String> getPages(String remainder) throws Exception;
-
+  protected abstract Collection<SearchMatch> getPages(String remainder) throws Exception;
 }

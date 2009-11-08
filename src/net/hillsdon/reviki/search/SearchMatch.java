@@ -16,6 +16,7 @@
 package net.hillsdon.reviki.search;
 
 import net.hillsdon.fij.core.Transform;
+import net.hillsdon.reviki.wiki.macros.AbstractListOfPagesMacro;
 
 /**
  * A match from a search.
@@ -24,16 +25,21 @@ import net.hillsdon.fij.core.Transform;
  * 
  * @author mth
  */
-public class SearchMatch {
-
+public class SearchMatch implements Comparable<SearchMatch>{
+  
   public static final Transform<SearchMatch, String> TO_PAGE_NAME = new Transform<SearchMatch, String>() {
     public String transform(SearchMatch in) {
       return in.getPage();
     }
   };
-  
+
   private final String _page;
   private final String _htmlExtract;
+  public static final Transform<String,SearchMatch> FROM_PAGE_NAME = new Transform<String, SearchMatch>(){
+    public SearchMatch transform(final String s) {
+      return new SearchMatch(s, null);
+    }
+  };
 
   public SearchMatch(final String page, final String htmlExtract) {
     _page = page;
@@ -67,5 +73,8 @@ public class SearchMatch {
   public int hashCode() {
     return _page.hashCode();
   }
-  
+
+  public int compareTo(final SearchMatch searchMatch) {
+    return _page.compareTo(searchMatch._page);
+  }
 }

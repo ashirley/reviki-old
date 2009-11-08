@@ -15,6 +15,8 @@
  */
 package net.hillsdon.reviki.web.pages.impl;
 
+import static net.hillsdon.fij.core.Functional.list;
+import static net.hillsdon.fij.core.Functional.map;
 import static net.hillsdon.reviki.web.common.RequestParameterReaders.getLong;
 import static net.hillsdon.reviki.web.common.RequestParameterReaders.getRequiredString;
 import static net.hillsdon.reviki.web.common.RequestParameterReaders.getString;
@@ -34,6 +36,7 @@ import javax.servlet.http.HttpServletResponse;
 import net.hillsdon.fij.text.Strings;
 import net.hillsdon.reviki.configuration.WikiConfiguration;
 import net.hillsdon.reviki.search.QuerySyntaxException;
+import net.hillsdon.reviki.search.SearchMatch;
 import net.hillsdon.reviki.vc.ChangeInfo;
 import net.hillsdon.reviki.vc.ConflictException;
 import net.hillsdon.reviki.vc.ContentTypedSink;
@@ -351,7 +354,7 @@ public class DefaultPageImpl implements DefaultPage {
   }
 
   private void addBacklinksInformation(final HttpServletRequest request, final PageReference page) throws IOException, QuerySyntaxException, PageStoreException {
-    List<String> pageNames = new ArrayList<String>(_graph.incomingLinks(page.getPath()));
+    List<String> pageNames = new ArrayList<String>(list(map(_graph.incomingLinks(page.getPath()), SearchMatch.TO_PAGE_NAME)));
     Collections.sort(pageNames);
     if (pageNames.size() > MAX_NUMBER_OF_BACKLINKS_TO_DISPLAY) {
       pageNames = pageNames.subList(0, MAX_NUMBER_OF_BACKLINKS_TO_DISPLAY);

@@ -15,6 +15,7 @@
  */
 package net.hillsdon.reviki.search.impl;
 
+import static net.hillsdon.fij.core.Functional.iter;
 import static net.hillsdon.fij.core.Functional.map;
 import static net.hillsdon.fij.core.Functional.set;
 import static net.hillsdon.fij.text.Strings.join;
@@ -198,16 +199,16 @@ public class LuceneSearcher implements SearchEngine {
     rememberLastIndexedRevision(revision);
   }
 
-  public Set<String> incomingLinks(final String page) throws IOException, PageStoreException {
+  public Set<SearchMatch> incomingLinks(final String page) throws IOException, PageStoreException {
     if (_dir == null) {
       return Collections.emptySet();
     }
     try {
-      return doReadOperation(new ReadOperation<Set<String>>() {
-        public Set<String> execute(final IndexReader reader, final Searcher searcher, final Analyzer analyzer) throws IOException, ParseException {
+      return doReadOperation(new ReadOperation<Set<SearchMatch>>() {
+        public Set<SearchMatch> execute(final IndexReader reader, final Searcher searcher, final Analyzer analyzer) throws IOException, ParseException {
           final String pageEscaped = escape(Escape.urlEncodeUTF8(page));
-          Set<String> results = set(map(query(reader, createAnalyzer(), searcher, FIELD_OUTGOING_LINKS, pageEscaped, false), SearchMatch.TO_PAGE_NAME));
-          results.remove(page);
+          Set<SearchMatch> results = set(query(reader, createAnalyzer(), searcher, FIELD_OUTGOING_LINKS, pageEscaped, false));
+          results.remove(new SearchMatch(page, null)); //NB. the extract doesn't affect equality so use null.
           return results;
         }
       });
@@ -217,20 +218,20 @@ public class LuceneSearcher implements SearchEngine {
     }
   }
 
-  public Set<String> outgoingLinks(final String page) throws IOException, PageStoreException {
+  public Set<SearchMatch> outgoingLinks(final String page) throws IOException, PageStoreException {
     if (_dir == null) {
       return Collections.emptySet();
     }
     try {
-      return doReadOperation(new ReadOperation<Set<String>>() {
-        public Set<String> execute(final IndexReader reader, final Searcher searcher, final Analyzer analyzer) throws IOException, ParseException {
+      return doReadOperation(new ReadOperation<Set<SearchMatch>>() {
+        public Set<SearchMatch> execute(final IndexReader reader, final Searcher searcher, final Analyzer analyzer) throws IOException, ParseException {
           Hits hits = searcher.search(new TermQuery(new Term(FIELD_PATH, page)));
           Iterator<?> iterator = hits.iterator();
           if (iterator.hasNext()) {
             Hit hit = (Hit) iterator.next();
             String outgoingLinks = hit.getDocument().get(FIELD_OUTGOING_LINKS);
-            Set<String> results = set(outgoingLinks.split("\\s"));
-            results.remove(page);
+            Set<SearchMatch> results = set(map(iter(outgoingLinks.split("\\s")), SearchMatch.FROM_PAGE_NAME));
+            results.remove(new SearchMatch(page, null));
             return results;
           }
           return Collections.emptySet();
