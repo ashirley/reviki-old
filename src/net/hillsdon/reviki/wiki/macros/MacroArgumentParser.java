@@ -1,5 +1,7 @@
 package net.hillsdon.reviki.wiki.macros;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -34,12 +36,18 @@ public class MacroArgumentParser {
     return _argumentNames;
   }
 
+  private String ltrim(String in) {
+    return in.replaceFirst("^ *", "");
+  }
+
   public Map<String, String> parse(final String in) throws ParseException {
-    if (!in.startsWith("(") || !in.endsWith(")")) {
+    String inTrimmed = ltrim(in).trim();
+
+    if (!inTrimmed.startsWith("(") || !inTrimmed.endsWith(")")) {
       throw new ParseException("arguments must be wrapped in parentheses");
     }
 
-    String unBracketted = in.substring(1, in.length() - 1);
+    String unBracketted = ltrim(inTrimmed.substring(1, inTrimmed.length() - 1));
 
     Pattern p = Pattern.compile("([a-zA-Z]+)\\s*=\\s*\"([^\"]+)\"\\s*(?:,\\s*)?");
     Matcher m = p.matcher(unBracketted);
