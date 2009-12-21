@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -36,8 +38,9 @@ import net.hillsdon.reviki.wiki.renderer.macro.ResultFormat;
 
 public abstract class AbstractListOfPagesMacro implements Macro {
   private static final String SORT_ARG_NAME = "sort";
+  private static final String GROUP_ARG_NAME = "group";
 
-  private final MacroArgumentParser _argParser = new MacroArgumentParser(getAllowedArgs(), SORT_ARG_NAME);
+  private final MacroArgumentParser _argParser = new MacroArgumentParser(getAllowedArgs(), SORT_ARG_NAME, GROUP_ARG_NAME);
 
   /**
    * Compare based on a given page property.
@@ -75,21 +78,53 @@ public abstract class AbstractListOfPagesMacro implements Macro {
 
   public final String handle(final PageReference page, final String remainder, PageRenderContext context) throws Exception {
     List<SearchMatch> pages = new ArrayList<SearchMatch>(getPages(remainder));
+
+    //sort alphabetically for a start.
+    sort(pages);
+
     try {
       final Map<String, String> args = getArgParser().parse(remainder);
       if (args.containsKey(SORT_ARG_NAME)) {
         Collections.sort(pages, new PagePropSorter(args.get(SORT_ARG_NAME)));
       }
+
+      if (args.containsKey(GROUP_ARG_NAME)) {
+        String groupKey = args.get(GROUP_ARG_NAME);
+        //Collections.sort(pages, new PagePropSorter());
+        //group into map
+        Map<String, List<SearchMatch>> groupedPages = new LinkedHashMap<String, List<SearchMatch>>();
+        for(SearchMatch match : pages) {
+          String groupValue = match.getPageProperties().get(groupKey);
+
+          if (!groupedPages.containsKey(groupValue)) {
+            groupedPages.put(groupValue, new LinkedList<SearchMatch>());
+          }
+
+          groupedPages.get(groupValue).add(match);
+        }
+
+        //render
+        StringBuffer sb = new StringBuffer();
+
+        for (Map.Entry<String, List<SearchMatch>> entry : groupedPages.entrySet()) {
+          sb.append("==== ").append(entry.getKey() == null ? "Not grouped" : entry.getKey()).append("\n");
+          sb.append(renderList(entry.getValue()));
+        }
+
+        return sb.toString();
+      }
       else {
-        //just sort alphabetically.
-        sort(pages);
+        //don't group
+        return renderList(pages);
       }
     }
     catch(MacroArgumentParser.ParseException e) {
-      //just sort alphabetically.
-      sort(pages);
+      //just rely on the basic alphabet sort and don't group at all.
+      return renderList(pages);
     }
+  }
 
+  private String renderList(List<SearchMatch> pages) {
     return join(map(pages.iterator(), SearchMatch.TO_PAGE_NAME), "  * ", "\n", "");
   }
 
