@@ -18,7 +18,13 @@ package net.hillsdon.reviki.wiki.macros;
 import static net.hillsdon.fij.core.Functional.list;
 import static net.hillsdon.fij.core.Functional.map;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import net.hillsdon.fij.core.Transform;
 import net.hillsdon.reviki.search.SearchEngine;
@@ -37,8 +43,23 @@ public class SearchMacro extends AbstractListOfPagesMacro {
   }
 
   @Override
-  protected Collection<SearchMatch> getPages(final String remainder) throws Exception {
-    return _searchEngine.search(remainder, false);
+  protected Collection<String> getAllowedArgs() {
+    return Collections.singleton("search") ;
   }
 
+  @Override
+  protected Collection<SearchMatch> getPages(final String remainder) throws Exception {
+    String query;
+    Map<String, String> args;
+    try {
+      args = getArgParser().parse(remainder);
+      query = args.get("query");
+    }
+    catch (MacroArgumentParser.ParseException e) {
+      //if this isn't valid arguments, assume it is the query itself.
+      query = remainder;
+    }
+
+    return _searchEngine.search(query, false);
+  }
 }
