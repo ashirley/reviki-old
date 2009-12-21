@@ -16,6 +16,7 @@
 package net.hillsdon.reviki.wiki.macros;
 
 import static java.util.Collections.sort;
+import static net.hillsdon.fij.core.Functional.map;
 import static net.hillsdon.fij.text.Strings.join;
 
 import java.util.ArrayList;
@@ -89,7 +90,7 @@ public abstract class AbstractListOfPagesMacro implements Macro {
       sort(pages);
     }
 
-    return join(pages.iterator(), "  * ", "\n", "");
+    return join(map(pages.iterator(), SearchMatch.TO_PAGE_NAME), "  * ", "\n", "");
   }
 
   public final ResultFormat getResultFormat() {
