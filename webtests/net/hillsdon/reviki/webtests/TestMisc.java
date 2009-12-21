@@ -24,12 +24,12 @@ public class TestMisc extends WebTestSupport {
     assertTrue(getWebPage("pages/test/").getTitleText().contains("Front Page"));
     assertTrue(getWebPage("pages/test").getTitleText().contains("Front Page"));
   }
-  
+
   public void testNoBackLinkToSelf() throws Exception {
     assertTrue(getWikiPage("FrontPage")
       .getByXPath("id('backlinks')//a[@href = 'FrontPage']").isEmpty());
   }
-  
+
   public void testSidebarEtc() throws Exception {
     for (PageReference page : COMPLIMENTARY_CONTENT_PAGES) {
       final String expect = "T" + System.currentTimeMillis() + page.getPath().toLowerCase();
@@ -38,18 +38,18 @@ public class TestMisc extends WebTestSupport {
       editWikiPage(page.getPath(), "", "Tidying", null);
     }
   }
-  
+
   public void testCssFromWikiUsedInsideWikisUrlSpaceOtherwiseDefaultCss() throws Exception {
     String defaultCss = "/resources/default-style.css";
     String perWikiCss = BASE_URL + "/pages/test/ConfigCss?ctype=raw";
     assertTrue(getWikiList().asXml().contains(defaultCss));
     String whatever = getWikiPage("WhatEver").asXml();
-    assertTrue(whatever.contains(perWikiCss));
-    assertFalse(whatever.contains(defaultCss));
+    assertTrue("Couldn't find perWiki css in wiki page", whatever.contains(perWikiCss));
+    assertFalse("Found default css in wiki page", whatever.contains(defaultCss));
   }
-  
+
   public void testConfigSvnLocationShowsFormToEditSvnLocation() throws Exception {
     getWikiPage("ConfigSvnLocation").getFormByName("configurationForm");
   }
-  
+
 }
