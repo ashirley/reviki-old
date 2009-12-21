@@ -33,18 +33,19 @@ import net.hillsdon.reviki.search.SearchMatch;
 public class SearchMacro extends AbstractListOfPagesMacro {
 
   private final SearchEngine _searchEngine;
+  private static final String SEARCH_ARG_NAME = "search";
 
   public SearchMacro(final SearchEngine searchEngine) {
     _searchEngine = searchEngine;
   }
-  
+
   public String getName() {
-    return "search";
+    return SEARCH_ARG_NAME;
   }
 
   @Override
   protected Collection<String> getAllowedArgs() {
-    return Collections.singleton("search") ;
+    return Collections.singleton(SEARCH_ARG_NAME) ;
   }
 
   @Override
@@ -53,7 +54,7 @@ public class SearchMacro extends AbstractListOfPagesMacro {
     Map<String, String> args;
     try {
       args = getArgParser().parse(remainder);
-      query = args.get("query");
+      query = args.get(SEARCH_ARG_NAME);
     }
     catch (MacroArgumentParser.ParseException e) {
       //if this isn't valid arguments, assume it is the query itself.
