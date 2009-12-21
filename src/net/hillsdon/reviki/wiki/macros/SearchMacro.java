@@ -15,20 +15,12 @@
  */
 package net.hillsdon.reviki.wiki.macros;
 
-import static net.hillsdon.fij.core.Functional.list;
-import static net.hillsdon.fij.core.Functional.map;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import net.hillsdon.fij.core.Transform;
 import net.hillsdon.reviki.search.SearchEngine;
 import net.hillsdon.reviki.search.SearchMatch;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
 
 public class SearchMacro extends AbstractListOfPagesMacro {
 
