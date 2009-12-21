@@ -18,32 +18,37 @@ package net.hillsdon.reviki.search;
 import net.hillsdon.fij.core.Transform;
 import net.hillsdon.reviki.wiki.macros.AbstractListOfPagesMacro;
 
+import java.util.Map;
+
 /**
  * A match from a search.
- * 
+ *
  * Considered equal by page.
- * 
+ *
  * @author mth
  */
 public class SearchMatch implements Comparable<SearchMatch>{
-  
+  private final String _page;
+  private final String _htmlExtract;
+  private Map<String, String> _pageProperties;
+
+
   public static final Transform<SearchMatch, String> TO_PAGE_NAME = new Transform<SearchMatch, String>() {
     public String transform(SearchMatch in) {
       return in.getPage();
     }
   };
 
-  private final String _page;
-  private final String _htmlExtract;
   public static final Transform<String,SearchMatch> FROM_PAGE_NAME = new Transform<String, SearchMatch>(){
     public SearchMatch transform(final String s) {
-      return new SearchMatch(s, null);
+      return new SearchMatch(s, null, null);
     }
   };
 
-  public SearchMatch(final String page, final String htmlExtract) {
+  public SearchMatch(final String page, final String htmlExtract, final Map<String, String> pageProperties) {
     _page = page;
     _htmlExtract = htmlExtract;
+    _pageProperties = pageProperties;
   }
 
   /**
@@ -52,7 +57,7 @@ public class SearchMatch implements Comparable<SearchMatch>{
   public String getPage() {
     return _page;
   }
-  
+
   /**
    * @return HTML extract showing match in context if requested and available,
    *         otherwise null.
@@ -60,7 +65,7 @@ public class SearchMatch implements Comparable<SearchMatch>{
   public String getHtmlExtract() {
     return _htmlExtract;
   }
-  
+
   @Override
   public boolean equals(final Object obj) {
     if (obj instanceof SearchMatch) {
@@ -68,7 +73,7 @@ public class SearchMatch implements Comparable<SearchMatch>{
     }
     return false;
   }
-  
+
   @Override
   public int hashCode() {
     return _page.hashCode();
@@ -76,5 +81,9 @@ public class SearchMatch implements Comparable<SearchMatch>{
 
   public int compareTo(final SearchMatch searchMatch) {
     return _page.compareTo(searchMatch._page);
+  }
+
+  public Map<String, String> getPageProperties() {
+    return _pageProperties;
   }
 }

@@ -208,7 +208,7 @@ public class LuceneSearcher implements SearchEngine {
         public Set<SearchMatch> execute(final IndexReader reader, final Searcher searcher, final Analyzer analyzer) throws IOException, ParseException {
           final String pageEscaped = escape(Escape.urlEncodeUTF8(page));
           Set<SearchMatch> results = set(query(reader, createAnalyzer(), searcher, FIELD_OUTGOING_LINKS, pageEscaped, false));
-          results.remove(new SearchMatch(page, null)); //NB. the extract doesn't affect equality so use null.
+          results.remove(new SearchMatch(page, null, null)); //NB. the extract doesn't affect equality so use null.
           return results;
         }
       });
@@ -231,7 +231,7 @@ public class LuceneSearcher implements SearchEngine {
             Hit hit = (Hit) iterator.next();
             String outgoingLinks = hit.getDocument().get(FIELD_OUTGOING_LINKS);
             Set<SearchMatch> results = set(map(iter(outgoingLinks.split("\\s")), SearchMatch.FROM_PAGE_NAME));
-            results.remove(new SearchMatch(page, null));
+            results.remove(new SearchMatch(page, null, null));
             return results;
           }
           return Collections.emptySet();
@@ -321,9 +321,20 @@ public class LuceneSearcher implements SearchEngine {
         // Get 3 best fragments and separate with a "..."
         extract = highlighter.getBestFragments(tokenStream, text, 3, "...");
       }
-      results.add(new SearchMatch(hit.get(FIELD_PATH), extract));
+      results.add(new SearchMatch(hit.get(FIELD_PATH), extract, getPageProperties(hit.getDocument())));
     }
     return results;
+  }
+
+  private Map<String, String> getPageProperties(Document document) {
+    List<Field> fields = document.getFields();
+    Map<String, String> pageProps = new LinkedHashMap<String, String>();
+    for (Field field : fields) {
+      if (field.name().startsWith(FIELD_PAGE_PROPS_PREFIX)) {
+        pageProps.put(field.name().substring(FIELD_PAGE_PROPS_PREFIX.length()), field.stringValue());
+      }
+    }
+    return pageProps;
   }
 
   public long getHighestIndexedRevision() throws IOException {

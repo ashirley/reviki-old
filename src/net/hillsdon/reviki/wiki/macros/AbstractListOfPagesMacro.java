@@ -31,16 +31,44 @@ import net.hillsdon.reviki.wiki.renderer.context.PageRenderContext;
 import net.hillsdon.reviki.wiki.renderer.macro.Macro;
 import net.hillsdon.reviki.wiki.renderer.macro.ResultFormat;
 
-//TODO: don't call parser.parse twice!
+//TODO: don't call parser.parse twice, once here and once in our subclasses!
 
 public abstract class AbstractListOfPagesMacro implements Macro {
+  private static final String SORT_ARG_NAME = "sort";
 
-  private final MacroArgumentParser _argParser = new MacroArgumentParser(getAllowedArgs(), "sort-by");
+  private final MacroArgumentParser _argParser = new MacroArgumentParser(getAllowedArgs(), SORT_ARG_NAME);
 
+  /**
+   * Compare based on a given page property.
+   * Note: this comparator imposes orderings that are inconsistent with equals.
+   */
   private class PagePropSorter implements Comparator<SearchMatch> {
+    private String _keyName;
 
-    public int compare(final SearchMatch searchMatch, final SearchMatch searchMatch1) {
-      return 0;
+    private PagePropSorter(String keyName) {
+      _keyName = keyName;
+    }
+
+    public int compare(final SearchMatch left, final SearchMatch right) {
+      String leftPropValue = left.getPageProperties().get(_keyName);
+      String rightPropValue = right.getPageProperties().get(_keyName);
+
+      if (leftPropValue == null && rightPropValue == null) {
+        //if neither has the sort key, they are the same
+        return 0;
+      }
+      else if (leftPropValue == null) {
+        //left doesn't have a sort key and is therefore at the end.
+        return 1;
+      }
+      else if (rightPropValue == null) {
+        //right doesn't have a sort key and is therefore at the end.
+        return -1;
+      }
+      else {
+        //otherwise compare them as strings
+        return leftPropValue.compareTo(rightPropValue);
+      }
     }
   }
 
@@ -48,8 +76,8 @@ public abstract class AbstractListOfPagesMacro implements Macro {
     List<SearchMatch> pages = new ArrayList<SearchMatch>(getPages(remainder));
     try {
       final Map<String, String> args = getArgParser().parse(remainder);
-      if (args.containsKey("group")) {
-        Collections.sort(pages, new PagePropSorter());
+      if (args.containsKey(SORT_ARG_NAME)) {
+        Collections.sort(pages, new PagePropSorter(args.get(SORT_ARG_NAME)));
       }
       else {
         //just sort alphabetically.
