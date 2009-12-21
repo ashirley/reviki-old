@@ -5,13 +5,15 @@ import net.hillsdon.reviki.wiki.renderer.context.PageRenderContext;
 import net.hillsdon.reviki.wiki.renderer.macro.Macro;
 import net.hillsdon.reviki.wiki.renderer.macro.ResultFormat;
 
+import java.util.Map;
+
 /**
  * This marks a piece of wiki markup as being the value for a key value pair.
- * e.g. <<keyedValue: foo wiki **mark**up>> identifies key=foo, value="wiki **mark**up"
- *
- * TODO: use my argument parser when I can recover it from bunga.dsl.local!
+ * e.g. <<keyedValue:(key="foo", value="wiki **mark**up">>
  */
 public class KeyedValue implements Macro {
+  private final MacroArgumentParser _parser = new MacroArgumentParser("key", "value");
+
   public String getName() {
     return "keyedValue";
   }
@@ -21,12 +23,10 @@ public class KeyedValue implements Macro {
   }
 
   public String handle(PageReference page, String remainder, PageRenderContext context) throws Exception {
-    String[] split = remainder.trim().split(" ", 2);
-    if (split.length != 2) {
-      throw new ParseException("There must be at least 1 space in the arguments to this macro");
-    }
-    String key = split[0];
-    String value = split[1];
+    Map<String, String> args = _parser.parse(remainder);
+
+    String key = args.get("key");
+    String value = args.get("value");
 
     context.setPageProperties(key, value);
     return value;
