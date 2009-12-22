@@ -327,7 +327,7 @@ public class LuceneSearcher implements SearchEngine {
   }
 
   private Map<String, String> getPageProperties(Document document) {
-    List<Field> fields = document.getFields();
+    @SuppressWarnings("unchecked") List<Field> fields = document.getFields();
     Map<String, String> pageProps = new LinkedHashMap<String, String>();
     for (Field field : fields) {
       if (field.name().startsWith(FIELD_PAGE_PROPS_PREFIX)) {
