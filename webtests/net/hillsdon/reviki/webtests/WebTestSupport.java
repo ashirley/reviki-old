@@ -199,7 +199,19 @@ public abstract class WebTestSupport extends TestCase {
   }
 
   protected HtmlAnchor getAnchorByHrefContains(final HtmlPage page, final String hrefContains) throws JaxenException {
-    return (HtmlAnchor) page.getByXPath("//a[contains(@href, '" + hrefContains + "')]").iterator().next();
+    return (HtmlAnchor) getAnchorListByHrefContains(page, hrefContains).iterator().next();
+  }
+
+  protected void assertAnchorPresentByHrefContains(final HtmlPage page, final String hrefContains) throws JaxenException {
+    assertFalse("Couldn't find an anchor whose href contained '" + hrefContains + "'", getAnchorListByHrefContains(page, hrefContains).isEmpty());
+  }
+
+  protected void assertAnchorAbsentByHrefContains(final HtmlPage page, final String hrefContains) throws JaxenException {
+    assertTrue("Found an unexpected anchor whose href contained '" + hrefContains + "'", getAnchorListByHrefContains(page, hrefContains).isEmpty());
+  }
+
+  private List<?> getAnchorListByHrefContains(HtmlPage page, String hrefContains) {
+    return page.getByXPath("//a[contains(@href, '" + hrefContains + "')]");
   }
 
   protected String removeSessionId(final String url) {
