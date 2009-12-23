@@ -17,7 +17,11 @@ package net.hillsdon.reviki.webtests;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Stack;
+import java.util.concurrent.DelayQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -182,7 +186,7 @@ public abstract class WebTestSupport extends TestCase {
   protected HtmlPage editWikiPage(/* mutable */ HtmlPage page, final String content, final String descriptionOfChange, final Boolean isNew) throws Exception {
     URL pageUrl = page.getWebResponse().getRequestUrl();
     if (isNew != null) {
-      assertTrue(!isNew ^ page.getTitleText().endsWith(" - New"));
+      assertTrue(isNew ? "Page existed when it shouldn't: " : "page didn't exist when it should have", !isNew ^ page.getTitleText().endsWith(" - New"));
     }
     page = clickEditLink(page);
     HtmlForm editForm = page.getFormByName("editForm");
@@ -199,7 +203,7 @@ public abstract class WebTestSupport extends TestCase {
   }
 
   protected HtmlAnchor getAnchorByHrefContains(final HtmlPage page, final String hrefContains) throws JaxenException {
-    return (HtmlAnchor) getAnchorListByHrefContains(page, hrefContains).iterator().next();
+    return getAnchorListByHrefContains(page, hrefContains).iterator().next();
   }
 
   protected void assertAnchorPresentByHrefContains(final HtmlPage page, final String hrefContains) throws JaxenException {
@@ -210,8 +214,33 @@ public abstract class WebTestSupport extends TestCase {
     assertTrue("Found an unexpected anchor whose href contained '" + hrefContains + "'", getAnchorListByHrefContains(page, hrefContains).isEmpty());
   }
 
-  private List<?> getAnchorListByHrefContains(HtmlPage page, String hrefContains) {
-    return page.getByXPath("//a[contains(@href, '" + hrefContains + "')]");
+
+  protected void assertAnchorOrderByHrefContains(final HtmlPage page, final String... hrefContains) throws JaxenException {
+    if (hrefContains.length == 0) {
+      return;
+    }
+
+    List<String> expectedContents = new ArrayList<String>(Arrays.asList(hrefContains));
+    List<HtmlAnchor> allAnchors = (List<HtmlAnchor>) page.getByXPath("//a");
+
+    for (HtmlAnchor anchor : allAnchors) {
+      String actualHref = anchor.getAttributeNS(null, "href");
+      if (actualHref.contains(expectedContents.get(0))) {
+        //we have found the first item!
+        expectedContents.remove(0);
+        if (expectedContents.isEmpty()) {
+          //found them all
+          return;
+        }
+      }
+    }
+
+    fail("Couldn't find all expected anchors in the correct order.");
+  }
+
+  @SuppressWarnings("unchecked")
+  private List<HtmlAnchor> getAnchorListByHrefContains(HtmlPage page, String hrefContains) {
+    return (List<HtmlAnchor>) page.getByXPath("//a[contains(@href, '" + hrefContains + "')]");
   }
 
   protected String removeSessionId(final String url) {
@@ -219,7 +248,7 @@ public abstract class WebTestSupport extends TestCase {
   }
 
   protected void assertURL(final String expected, final String actual) {
-    assertEquals(removeSessionId(expected.toString()), removeSessionId(actual.toString()));
+    assertEquals(removeSessionId(expected), removeSessionId(actual));
   }
 
   protected void assertURL(final URL expected, final URL actual) {

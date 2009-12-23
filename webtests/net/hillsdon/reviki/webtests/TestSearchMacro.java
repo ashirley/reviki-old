@@ -23,7 +23,7 @@ public class TestSearchMacro extends WebTestSupport {
     page = getWikiPage(sourcePageName);
     assertAnchorPresentByHrefContains(page, Escape.urlEncodeUTF8(targetPageName));
 
-    //TODO put the asterisk at the beginning or beginning and end.
+    //TODO put the asterisk in the middle.
   }
 
   public void testSearchByOutgoingLinks() throws Exception {
@@ -48,4 +48,63 @@ public class TestSearchMacro extends WebTestSupport {
     assertAnchorAbsentByHrefContains(page, Escape.urlEncodeUTF8(refers));
     assertAnchorPresentByHrefContains(page, Escape.urlEncodeUTF8(refers2));
   }
+
+  public void testSearchResultWithSpaceByPath() throws Exception {
+    final String targetPageName = uniqueWikiPageName("Search Target");
+    editWikiPage(targetPageName, "This page should be found by a search macro", "", true);
+
+    final String sourcePageName = uniqueWikiPageName("SearchSource");
+    editWikiPage(sourcePageName, "<<search:(search=\"path:" + targetPageName.replace(" ", "?") + "\")>>", "", true);
+
+    HtmlPage page = getWikiPage(sourcePageName);
+    assertAnchorPresentByHrefContains(page, Escape.urlEncodeUTF8(targetPageName));
+  }
+
+  public void testSearchSortAndGroup() throws Exception {
+    final String referred = uniqueWikiPageName("SearchTargetReferred");
+    editWikiPage(referred, "This page should be found by a search macro", "", true);
+
+    final String refers = uniqueWikiPageName("SearchTargetRefersOne");
+    editWikiPage(refers, referred + "\n <<keyedValue:(key=\"sortFoo\", value=\"1\")>>\n<<keyedValue:(key=\"groupFoo\", value=\"foo\")>>", "", true);
+
+    final String refers2 = uniqueWikiPageName("SearchTargetRefersTwo");
+    editWikiPage(refers2, referred + "\n <<keyedValue:(key=\"sortFoo\", value=\"2\")>>\n<<keyedValue:(key=\"groupFoo\", value=\"bar\")>>", "", true);
+
+    final String refers3 = uniqueWikiPageName("SearchTargetRefersThree");
+    editWikiPage(refers3, referred + "\n <<keyedValue:(key=\"sortFoo\", value=\"3\")>>\n<<keyedValue:(key=\"groupFoo\", value=\"foo\")>>", "", true);
+
+    final String refers4 = uniqueWikiPageName("SearchTargetRefersFour");
+    editWikiPage(refers4, referred + "\n <<keyedValue:(key=\"sortFoo\", value=\"4\")>>\n<<keyedValue:(key=\"groupFoo\", value=\"bar\")>>", "", true);
+
+
+    //no sort or group
+    final String sourcePageName = uniqueWikiPageName("SearchSource");
+    editWikiPage(sourcePageName, "<<search:(search=\"outgoing-links:" + referred + "\")>>", "", true);
+
+    HtmlPage page = getWikiPage(sourcePageName);
+    //expect alphabetical order (i.e. Three before Two)
+    assertAnchorOrderByHrefContains(page, Escape.urlEncodeUTF8(refers4), Escape.urlEncodeUTF8(refers), Escape.urlEncodeUTF8(refers3), Escape.urlEncodeUTF8(refers2));
+
+    //just sort
+    editWikiPage(sourcePageName, "<<search:(search=\"outgoing-links:" + referred + "\", sort=\"sortFoo\")>>", "", false);
+
+    page = getWikiPage(sourcePageName);
+    assertAnchorOrderByHrefContains(page, Escape.urlEncodeUTF8(refers), Escape.urlEncodeUTF8(refers2), Escape.urlEncodeUTF8(refers3), Escape.urlEncodeUTF8(refers4));
+
+    //just group
+    editWikiPage(sourcePageName, "<<search:(search=\"outgoing-links:" + referred + "\", group=\"groupFoo\")>>", "", false);
+
+    page = getWikiPage(sourcePageName);
+    assertAnchorOrderByHrefContains(page, Escape.urlEncodeUTF8(refers4), Escape.urlEncodeUTF8(refers2), Escape.urlEncodeUTF8(refers), Escape.urlEncodeUTF8(refers3));
+
+    //sort and group
+    editWikiPage(sourcePageName, "<<search:(search=\"outgoing-links:" + referred + "\", sort=\"sortFoo\", group=\"groupFoo\")>>", "", false);
+
+    page = getWikiPage(sourcePageName);
+    assertAnchorOrderByHrefContains(page, Escape.urlEncodeUTF8(refers2), Escape.urlEncodeUTF8(refers4), Escape.urlEncodeUTF8(refers), Escape.urlEncodeUTF8(refers3));
+
+    //TODO also check the group headings are correct
+  }
+
+  //TODO search based on keyedValue
 }
