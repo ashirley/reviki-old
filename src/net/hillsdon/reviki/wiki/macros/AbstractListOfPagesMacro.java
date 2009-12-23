@@ -17,6 +17,7 @@ package net.hillsdon.reviki.wiki.macros;
 
 import static java.util.Collections.sort;
 import static net.hillsdon.fij.core.Functional.map;
+import static net.hillsdon.fij.core.Functional.list;
 import static net.hillsdon.fij.text.Strings.join;
 
 import java.util.ArrayList;
@@ -106,9 +107,11 @@ public abstract class AbstractListOfPagesMacro implements Macro {
         //render
         StringBuffer sb = new StringBuffer();
 
-        for (Map.Entry<String, List<SearchMatch>> entry : groupedPages.entrySet()) {
-          sb.append("==== ").append(entry.getKey() == null ? "Not grouped" : entry.getKey()).append("\n");
-          sb.append(renderList(entry.getValue()));
+        List<String> groupNames = list(groupedPages.keySet());
+        sort(groupNames);
+        for (String groupName : groupNames) {
+          sb.append("==== ").append(groupName == null ? "Not grouped" : groupName).append("\n");
+          sb.append(renderList(groupedPages.get(groupName)));
         }
 
         return sb.toString();
@@ -125,7 +128,7 @@ public abstract class AbstractListOfPagesMacro implements Macro {
   }
 
   private String renderList(List<SearchMatch> pages) {
-    return join(map(pages.iterator(), SearchMatch.TO_PAGE_NAME), "  * ", "\n", "");
+    return join(map(pages.iterator(), SearchMatch.TO_PAGE_NAME), "  * [[", "]]\n", "");
   }
 
   public final ResultFormat getResultFormat() {
