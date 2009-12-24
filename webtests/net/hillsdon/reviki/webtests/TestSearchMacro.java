@@ -103,8 +103,10 @@ public class TestSearchMacro extends WebTestSupport {
     page = getWikiPage(sourcePageName);
     assertAnchorOrderByHrefContains(page, Escape.urlEncodeUTF8(refers2), Escape.urlEncodeUTF8(refers4), Escape.urlEncodeUTF8(refers), Escape.urlEncodeUTF8(refers3));
 
-    //TODO also check the group headings are correct
+    assertFalse("Couldn't find first heading", page.getByXPath("//h4[. = \"bar\" and //a[contains(@href, \"" + Escape.urlEncodeUTF8(refers2) + "\")] and //a[contains(@href, \"" + Escape.urlEncodeUTF8(refers4) + "\")]]").isEmpty());
+    assertFalse("Couldn't find second heading", page.getByXPath("//h4[. = \"foo\" and //a[contains(@href, \"" + Escape.urlEncodeUTF8(refers) + "\")] and //a[contains(@href, \"" + Escape.urlEncodeUTF8(refers3) + "\")]]").isEmpty());
   }
 
+  //TODO ungrouped results
   //TODO search based on keyedValue
 }
