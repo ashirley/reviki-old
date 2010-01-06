@@ -27,11 +27,7 @@ import java.util.Map;
  *
  * @author mth
  */
-public class SearchMatch implements Comparable<SearchMatch>{
-  private final String _page;
-  private final String _htmlExtract;
-  private Map<String, String> _pageProperties;
-
+public class SearchMatch implements Comparable<SearchMatch> {
 
   public static final Transform<SearchMatch, String> TO_PAGE_NAME = new Transform<SearchMatch, String>() {
     public String transform(SearchMatch in) {
@@ -44,6 +40,11 @@ public class SearchMatch implements Comparable<SearchMatch>{
       return new SearchMatch(s, null, null);
     }
   };
+  
+  private final String _page;
+  private final String _htmlExtract;
+  private Map<String, String> _pageProperties;
+
 
   public SearchMatch(final String page, final String htmlExtract, final Map<String, String> pageProperties) {
     _page = page;

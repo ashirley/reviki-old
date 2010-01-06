@@ -28,7 +28,10 @@ import net.hillsdon.reviki.vc.PageStore;
 import net.hillsdon.reviki.vc.PageStoreException;
 import net.hillsdon.reviki.vc.impl.CachingPageStore;
 
-import static net.hillsdon.fij.core.Functional.*;
+import static net.hillsdon.fij.core.Functional.filter;
+import static net.hillsdon.fij.core.Functional.list;
+import static net.hillsdon.fij.core.Functional.map;
+import static net.hillsdon.fij.core.Functional.set;
 
 public class WikiGraphImpl implements WikiGraph {
 
@@ -39,7 +42,7 @@ public class WikiGraphImpl implements WikiGraph {
     _pageStore = pageStore;
     _searchEngine = searchEngine;
   }
-  
+
   public Set<SearchMatch> incomingLinks(final String page) throws IOException, PageStoreException {
     Set<SearchMatch> incoming = _searchEngine.incomingLinks(page);
     incoming = retainOnlyExistingPages(incoming);
@@ -66,7 +69,7 @@ public class WikiGraphImpl implements WikiGraph {
   /**
    * The search index will only update its record of outgoing links
    * when pages are edited so we compensate by filtering.
-   * 
+   *
    * @param pages Incoming.
    * @throws PageStoreException If we can't get the page list.
    */
